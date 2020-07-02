@@ -10,12 +10,31 @@ class EditorComponent extends React.Component {
     constructor() {
         super();
 
-        this.state={
+        this.state = {
             text: '',
-            title:'',
-            id:''
+            title: '',
+            id: ''
         }
     }
+
+    componentDidMount = () => {
+        this.setState({
+            text: this.props.selectedNote.body,
+            title: this.props.selectedNote.title,
+            id: this.props.selectedNote.id
+        })
+    };
+
+    componentDidUpdate = () => {
+        if (this.props.selectedNote.id !== this.state.id) {
+            this.setState({
+                text: this.props.selectedNote.body,
+                title: this.props.selectedNote.title,
+                id: this.props.selectedNote.id
+            })
+        }
+    };
+
 
     render() {
 
@@ -23,6 +42,13 @@ class EditorComponent extends React.Component {
 
         return (
             <div className={classes.editorContainer}>
+
+                <BorderColorIcon className={classes.editIcon}/>
+                <input className={classes.titleInput}
+                       placeholder="Note title..."
+                       value={this.state.title ? this.state.title : ''}
+                       onChange={(e) => this.updateTitle(e.target.value)}
+                />
                 <ReactQuill
                     value={this.state.text}
                     onChange={this.updateBody}>
@@ -39,8 +65,16 @@ class EditorComponent extends React.Component {
     };
 
     update = debounce(() => {
-        console.log('UPDATING DATABASE')
-    })
+        this.props.noteUpdate(this.state.id, {
+            title: this.state.title,
+            body: this.state.text
+        })
+    }, 1500);
+
+    updateTitle = async (txt) => {
+        await this.setState({title: txt});
+        this.update();
+    }
 
 }
 
